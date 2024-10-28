@@ -7,7 +7,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 //Conection DB
-const { dbConection } = require('./database/config');
+// const { dbConection } = require('./database/config');
 
 // Crear el servidor express
 const app = express();
@@ -22,7 +22,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
 
 // BY GILMER C.
-dbConection();
+// dbConection();
 
 // DIRECTORIO PUBLICO
 app.use(express.static('public'));
