@@ -24,27 +24,10 @@ const getQR = async(req, res) => {
 
         client.on('qr', (qrData) => {
 
-            const filePath = path.join(__dirname, 'qr-code.png');
-
-            // Generar el código QR y guardarlo como archivo PNG
-            QRCode.toFile(filePath, qrData, (err) => {
-                if (err) {
-                    return res.status(500).send('Error generando el código QR');
-                }
-
-                // Enviar el archivo como respuesta
-                res.sendFile(filePath, (err) => {
-                    if (err) {
-                        return res.status(500).send('Error enviando el archivo');
-                    }
-
-                    // Opcional: eliminar el archivo temporal después de enviarlo
-                    fs.unlink(filePath, (err) => {
-                        if (err) {
-                            console.error('Error eliminando el archivo temporal:', err);
-                        }
-                    });
-                });
+            // DEVOLVEMOS LA DATA
+            res.json({
+                ok: true,
+                qr: qrData
             });
 
         });
@@ -71,7 +54,8 @@ const sendMensaje = async(req, res = response) => {
     try {
 
         const { id } = req.params; // ID del cliente
-        const { number, message } = req.body; // Datos del mensaje
+        let { number, message } = req.body; // Datos del mensaje
+        number = number.trim();
 
         const client = await getClient(id);
 
@@ -79,44 +63,29 @@ const sendMensaje = async(req, res = response) => {
             return res.status(404).send('Cliente no encontrado');
         }
 
-        const chatId = `${number.substring(1)}@c.us`;
+        const chatId = `${number}@c.us`;
 
-        // const number_details = client.getNumberId(chatId);
+        const number_details = await client.getNumberId(chatId);
 
-        await client.sendMessage(chatId, message)
-            .then(response => {
-                res.status(200).send('Mensaje enviado con éxito');
-            })
-            .catch(err => {
-                res.status(500).send('Error al enviar el mensaje');
+        if (number_details) {
+            await client.sendMessage(chatId, message)
+                .then(response => {
+                    res.json({
+                        ok: true,
+                        msg: 'Mensaje enviado con éxito'
+                    })
+                })
+                .catch(err => {
+                    res.status(500).send('Error al enviar el mensaje');
+                });
+        } else {
+            return res.status(400).json({
+                ok: false,
+                msg: 'Error al enviar el mensaje, porfavor revisa el numero o intenta nuevamente'
             });
-        // if (number_details) {
-        // } else {
-        //     res.json({
-        //         ok: false,
-        //         msg: 'Error al enviar el mensaje'
-        //     })
-        // }
+        }
 
 
-
-        // if (number_details) {
-        //     await client.sendMessage(chatId, message);
-        //     res.json({ res: true })
-        // } else {
-        //     res.json({ res: false })
-        // }
-
-
-        // const chatId = `${phone.substring(1)}@c.us`;;
-        // const number_details = await whatsapp.getNumberId(chatId);
-
-        // if (number_details) {
-        //     await whatsapp.sendMessage(chatId, message);
-        //     res.json({ res: true })
-        // } else {
-        //     res.json({ res: false })
-        // }
 
 
 
@@ -140,7 +109,8 @@ const sendImage = async(req, res = response) => {
     try {
 
         const id = req.params.id;
-        const number = req.params.number;
+        let number = req.params.number;
+        number = number.trim();
         const { caption } = req.body
 
         // VALIDATE IMAGE
@@ -175,7 +145,16 @@ const sendImage = async(req, res = response) => {
             .toFile(path, async(err, info) => {
 
                 const client = await getClient(id);
-                const chatId = `${number.substring(1)}@c.us`;
+                const chatId = `${number}@c.us`;
+
+                const number_details = await client.getNumberId(chatId);
+
+                if (!number_details) {
+                    return res.status(400).json({
+                        ok: false,
+                        msg: 'Error al enviar el mensaje, porfavor revisa el numero o intenta nuevamente'
+                    });
+                }
 
                 const media = MessageMedia.fromFilePath(path);
 
@@ -184,7 +163,10 @@ const sendImage = async(req, res = response) => {
                         // DELET IMAGE OLD
                         fs.unlinkSync(path);
                     }
-                    res.status(200).send({ message: 'Imagen enviada', response });
+                    res.json({
+                        ok: true,
+                        msg: 'Imagen enviada'
+                    });
                 }).catch((error) => {
                     res.status(500).send({ error: 'Error al enviar la imagen', details: error });
                 });
@@ -214,20 +196,30 @@ const sendMasives = async(req, res = response) => {
         const contacts = req.body.contacts;
 
         const client = await getClient(id);
+        let contador = 0;
 
         for (let i = 0; i < contacts.length; i++) {
-            const { number, message } = contacts[i];
+            let { number, message } = contacts[i];
 
-            try {
-                await client.sendMessage(`${number}@c.us`, message);
-                console.log(`Mensaje enviado a: ${number}`);
+            number = number.trim();
 
-                // Pausa entre mensajes para evitar el spam
-                await new Promise(resolve => setTimeout(resolve, 3000)); // Pausa de 3 segundos entre cada mensaje
-            } catch (error) {
-                console.error(`Error al enviar mensaje a ${number}:`, error);
+            const chatId = `${number}@c.us`;
+            const number_details = await client.getNumberId(chatId);
+
+            if (number_details) {
+                contador++;
+                await client.sendMessage(chatId, message);
             }
+
+            // Pausa entre mensajes para evitar el spam
+            await new Promise(resolve => setTimeout(resolve, 3000));
+
         }
+
+        res.json({
+            ok: true,
+            msg: `Se enviaron exitosamente, ${contador + 1} mensajes`
+        })
 
     } catch (error) {
         console.log(error);
