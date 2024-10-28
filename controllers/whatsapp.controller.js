@@ -22,7 +22,7 @@ const getQR = async(req, res) => {
 
         const client = await getClient(id);
 
-        client.on('qr', (qrData) => {
+        await client.on('qr', (qrData) => {
 
             // DEVOLVEMOS LA DATA
             res.json({
