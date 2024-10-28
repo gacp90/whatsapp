@@ -1,6 +1,7 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const fs = require('fs');
+const puppeteer = require('puppeteer');
 
 // Mapa para almacenar clientes
 const clients = new Map();
@@ -9,7 +10,9 @@ const clients = new Map();
 const initializeClient = (id) => {
     const client = new Client({
         puppeteer: {
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            executablePath: '/usr/bin/chromium-browser', // Ruta al Chromium instalado manualmente
+            headless: true, // Modo headless para servidores
+            args: ['--no-sandbox', '--disable-setuid-sandbox'] // Argumentos recomendados
         },
         authStrategy: new LocalAuth({ clientId: id }) // Usa el `clientId` para separar múltiples sesiones
     });
