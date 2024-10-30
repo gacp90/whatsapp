@@ -207,6 +207,7 @@ const sendMasives = async(req, res = response) => {
             if (number_details) {
                 contador++;
                 await client.sendMessage(chatId, message);
+                console.log(`Mensaje enviado a ${number}, con exito!`);
             }
 
             // Pausa entre mensajes para evitar el spam
