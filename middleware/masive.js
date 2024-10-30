@@ -10,10 +10,9 @@ const sendMessage = async(number, message, id) => {
         number = number.trim().replace(/\s/g, '');
 
         const client = await getClient(id);
-        contador++;
 
         console.log(`============================================================`);
-        console.log(`Enviando mensaje al ${number}, mensaje #${contador}`);
+        console.log(`Enviando mensaje al ${number}`);
 
         const number_details = await client.getNumberId(number);
 
