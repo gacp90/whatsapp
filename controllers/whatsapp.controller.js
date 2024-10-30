@@ -202,13 +202,15 @@ const sendMasives = async(req, res = response) => {
             const client = await getClient(id);
 
             const chatId = `${number}@c.us`;
-            const number_details = await client.getNumberId(chatId);
+            contador++;
+            await client.sendMessage(chatId, message);
+            console.log(`Mensaje enviado a ${number}, con exito!`);
 
-            if (number_details) {
-                contador++;
-                await client.sendMessage(chatId, message);
-                console.log(`Mensaje enviado a ${number}, con exito!`);
-            }
+
+            // const number_details = await client.getNumberId(chatId);
+
+            // if (number_details) {
+            // }
 
             // Pausa entre mensajes para evitar el spam
             await new Promise(resolve => setTimeout(resolve, 3000));
