@@ -200,7 +200,7 @@ const sendMasives = async(req, res = response) => {
         await messageQueue.add({ contacts, id });
 
         // Respuesta inmediata al frontend
-        res.status(200).json({ status: 'Messages have been enqueued' });
+        res.status(200).json({ msg: 'Se estan enviando los mensajes masivos' });
 
         // let contador = 0;
 
