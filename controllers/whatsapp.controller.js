@@ -9,7 +9,6 @@ const { v4: uuidv4 } = require('uuid');
 
 const QRCode = require('qrcode');
 const { getClient } = require('../middleware/whatpsapp');
-const { sendMessagesInBatches } = require('../middleware/masive');
 // const { whatsapp } = require('../lib/whatsapp');
 
 /** ======================================================================
@@ -188,38 +187,27 @@ const sendImage = async(req, res = response) => {
 =========================================================================*/
 const sendMasives = async(req, res = response) => {
 
-    const { id } = req.params;
-    const contacts = req.body.contacts;
-
-    // try {
-    //     // Llama al servicio que gestiona el envío por lotes
-    //     await sendMessagesInBatches(contacts, id);
-    //     res.status.json({ ok: true, msg: 'Mensajes enviados exitosamente' });
-    // } catch (error) {
-    //     console.error(`Error al enviar el mensaje a`, error);
-    //     throw error;
-    // }
-
     try {
 
+        const { id } = req.params;
+        const contacts = req.body.contacts;
 
-
-        const client = await getClient(id);
         let contador = 0;
 
         for (let i = 0; i < contacts.length; i++) {
-            let { number, message } = contacts[i];
 
+            let { number, message } = contacts[i];
             number = number.trim();
 
+            const client = await getClient(id);
+
             const chatId = `${number}@c.us`;
-            await client.sendMessage(chatId, message);
-            contador++;
+            const number_details = await client.getNumberId(chatId);
 
-            // const number_details = await client.getNumberId(chatId);
-
-            // if (number_details) {
-            // }
+            if (number_details) {
+                contador++;
+                await client.sendMessage(chatId, message);
+            }
 
             // Pausa entre mensajes para evitar el spam
             await new Promise(resolve => setTimeout(resolve, 3000));
