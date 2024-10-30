@@ -6,9 +6,6 @@ const { getClient } = require('./whatpsapp');
 // Función para enviar un mensaje individual
 const sendMessage = async(number, message, id) => {
     try {
-        // Aquí va la lógica para enviar el mensaje
-        console.log(`Enviando mensaje a ${number}: ${message}`);
-        // Por ejemplo:
 
         const client = await getClient(id);
 
@@ -16,6 +13,10 @@ const sendMessage = async(number, message, id) => {
 
         const chatId = `${number}@c.us`;
         await client.sendMessage(chatId, message);
+
+        // Aquí va la lógica para enviar el mensaje
+        console.log(`Enviando mensaje a ${number} exitosamente`);
+
         // Pausa entre mensajes para evitar el spam
         await new Promise(resolve => setTimeout(resolve, 1000));
         // const number_details = await client.getNumberId(chatId);

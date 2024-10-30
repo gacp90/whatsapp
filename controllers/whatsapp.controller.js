@@ -196,11 +196,8 @@ const sendMasives = async(req, res = response) => {
         await sendMessagesInBatches(contacts, id);
         res.status.json({ ok: true, msg: 'Mensajes enviados exitosamente' });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            ok: false,
-            msg: 'Error inesperado, porfavor intente nuevamente'
-        });
+        console.error(`Error al enviar el mensaje a ${number}`, error);
+        throw error;
     }
 
     // try {
