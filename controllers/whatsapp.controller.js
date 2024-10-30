@@ -199,12 +199,15 @@ const sendMasives = async(req, res = response) => {
             let { number, message } = contacts[i];
             number = number.trim();
 
+            console.log(`============================================================`);
+            console.log(`Enviando mensaje al ${number}`);
             const client = await getClient(id);
 
             const chatId = `${number}@c.us`;
             contador++;
             await client.sendMessage(chatId, message);
-            console.log(`Mensaje enviado a ${number}, con exito!`);
+            console.log(`Mensaje enviado con exito!`);
+            console.log(`============================================================`);
 
 
             // const number_details = await client.getNumberId(chatId);
