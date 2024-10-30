@@ -11,6 +11,10 @@ const QRCode = require('qrcode');
 const { getClient } = require('../middleware/whatpsapp');
 // const { whatsapp } = require('../lib/whatsapp');
 
+const Queue = require('bull');
+const { sendMessage } = require('../middleware/masive');
+const messageQueue = new Queue('messageQueue');
+
 /** ======================================================================
  *  GET
 =========================================================================*/
@@ -192,40 +196,46 @@ const sendMasives = async(req, res = response) => {
         const { id } = req.params;
         const contacts = req.body.contacts;
 
-        let contador = 0;
+        // Encola el envío de los mensajes
+        await messageQueue.add({ contacts, id });
 
-        for (let i = 0; i < contacts.length; i++) {
+        // Respuesta inmediata al frontend
+        res.status(200).json({ status: 'Messages have been enqueued' });
 
-            let { number, message } = contacts[i];
-            number = number.trim();
+        // let contador = 0;
 
-            const client = await getClient(id);
-            contador++;
+        // for (let i = 0; i < contacts.length; i++) {
 
-            console.log(`============================================================`);
-            console.log(`Enviando mensaje al ${number}`);
+        //     let { number, message } = contacts[i];
+        //     number = number.trim();
 
-            const number_details = await client.getNumberId(number);
+        //     const client = await getClient(id);
+        //     contador++;
 
-            if (number_details) {
-                await client.sendMessage(number, message);
-                console.log(`Mensaje enviado con exito!`);
-                console.log(`============================================================`);
+        //     console.log(`============================================================`);
+        //     console.log(`Enviando mensaje al ${number}`);
 
-            } else {
-                console.log(`No se pudo enviar el mensaje!`);
-                console.log(`============================================================`);
-            }
-            // Pausa entre mensajes para evitar el spam
-            await new Promise(resolve => setTimeout(resolve, 3000));
+        //     const number_details = await client.getNumberId(number);
+
+        //     if (number_details) {
+        //         await client.sendMessage(number, message);
+        //         console.log(`Mensaje enviado con exito!`);
+        //         console.log(`============================================================`);
+
+        //     } else {
+        //         console.log(`No se pudo enviar el mensaje!`);
+        //         console.log(`============================================================`);
+        //     }
+        //     // Pausa entre mensajes para evitar el spam
+        //     await new Promise(resolve => setTimeout(resolve, 3000));
 
 
-        }
+        // }
 
-        res.json({
-            ok: true,
-            msg: `Se enviaron exitosamente, ${contador + 1} mensajes`
-        })
+        // res.json({
+        //     ok: true,
+        //     msg: `Se enviaron exitosamente, ${contador + 1} mensajes`
+        // })
 
     } catch (error) {
         console.log(error);
@@ -236,6 +246,37 @@ const sendMasives = async(req, res = response) => {
     }
 
 }
+
+// Procesa los trabajos en la cola
+messageQueue.process(async(job, done) => {
+    const { contacts, id } = job.data;
+
+    for (let i = 0; i < contacts.length; i++) {
+
+        let { number, message } = contacts[i];
+        number = number.trim().replace(/\s/g, '');
+
+        const client = await getClient(id);
+        console.log(`Enviando mensaje al ${number}, numero #${i+1}`);
+
+        try {
+            const number_details = await client.getNumberId(number);
+            if (number_details) {
+                await client.sendMessage(number, message);
+            }
+        } catch (error) {
+            console.error(`Error enviando mensaje a ${number}:`, error);
+            job.moveToFailed({ mensaje: `Failed to send to ${number}` }, true);
+        }
+
+        // Pausa entre mensajes para evitar el spam
+        const delay = Math.random() * (4500 - 3000) + 3000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+
+    }
+
+    done();
+});
 
 
 

@@ -61,4 +61,4 @@ const sendMessagesInBatches = async(contactList, id) => {
 // Función para retrasar la ejecución
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-module.exports = { sendMessagesInBatches }
+module.exports = { sendMessagesInBatches, sendMessage }
