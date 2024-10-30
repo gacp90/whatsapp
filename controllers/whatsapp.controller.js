@@ -214,11 +214,11 @@ const sendMasives = async(req, res = response) => {
 
             const chatId = `${number}@c.us`;
             await client.sendMessage(chatId, message);
+            contador++;
 
             // const number_details = await client.getNumberId(chatId);
 
             // if (number_details) {
-            //     contador++;
             // }
 
             // Pausa entre mensajes para evitar el spam
