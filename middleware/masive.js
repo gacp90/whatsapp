@@ -11,23 +11,16 @@ const sendMessage = async(number, message, id) => {
         // Por ejemplo:
 
         const client = await getClient(id);
-        let contador = 0;
 
-        for (let i = 0; i < contacts.length; i++) {
-            let { number, message } = contacts[i];
+        number = number.trim();
 
-            number = number.trim();
+        const chatId = `${number}@c.us`;
+        const number_details = await client.getNumberId(chatId);
 
-            const chatId = `${number}@c.us`;
-            const number_details = await client.getNumberId(chatId);
-
-            if (number_details) {
-                contador++;
-                await client.sendMessage(chatId, message);
-                // Pausa entre mensajes para evitar el spam
-                await new Promise(resolve => setTimeout(resolve, 1000));
-            }
-
+        if (number_details) {
+            await client.sendMessage(chatId, message);
+            // Pausa entre mensajes para evitar el spam
+            await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
 
