@@ -19,8 +19,8 @@ const sendMessage = async(number, message, id) => {
         }
 
         // Pausa entre mensajes para evitar el spam
-        const delay = Math.random() * (4500 - 3000) + 3000;
-        await new Promise(resolve => setTimeout(resolve, delay));
+        const delayM = Math.random() * (4500 - 3000) + 3000;
+        await delay(delayM);
 
 
     } catch (error) {
