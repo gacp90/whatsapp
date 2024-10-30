@@ -15,13 +15,13 @@ const sendMessage = async(number, message, id) => {
         number = number.trim();
 
         const chatId = `${number}@c.us`;
-        const number_details = await client.getNumberId(chatId);
+        await client.sendMessage(chatId, message);
+        // Pausa entre mensajes para evitar el spam
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        // const number_details = await client.getNumberId(chatId);
 
-        if (number_details) {
-            await client.sendMessage(chatId, message);
-            // Pausa entre mensajes para evitar el spam
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
+        // if (number_details) {
+        // }
 
 
     } catch (error) {
