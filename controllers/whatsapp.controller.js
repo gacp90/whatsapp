@@ -198,26 +198,30 @@ const sendMasives = async(req, res = response) => {
 
             let { number, message } = contacts[i];
             number = number.trim();
-            number.replace(/ /g, "")
 
             const client = await getClient(id);
 
-            const chatId = number.trim() + '@c.us';
+            let chatId = number + "@c.us";
+            chatId = chatId.replace(/ /g, "")
             contador++;
+
             console.log(`============================================================`);
             console.log(`Enviando mensaje al ${chatId}`);
-            await client.sendMessage(chatId, message);
-            console.log(`Mensaje enviado con exito!`);
-            console.log(`============================================================`);
 
+            const number_details = await client.getNumberId(chatId);
 
-            // const number_details = await client.getNumberId(chatId);
+            if (number_details) {
+                await client.sendMessage(chatId, message);
+                console.log(`Mensaje enviado con exito!`);
+                console.log(`============================================================`);
 
-            // if (number_details) {
-            // }
-
+            } else {
+                console.log(`No se pudo enviar el mensaje!`);
+                console.log(`============================================================`);
+            }
             // Pausa entre mensajes para evitar el spam
             await new Promise(resolve => setTimeout(resolve, 3000));
+
 
         }
 
