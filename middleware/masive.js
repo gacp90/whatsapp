@@ -1,4 +1,5 @@
 const { Client } = require('whatsapp-web.js'); // O el cliente que estás usando
+const { getClient } = require('./whatpsapp');
 
 // Inicializa tu cliente de WhatsApp aquí, similar a lo que ya tienes
 
