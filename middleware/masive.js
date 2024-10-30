@@ -7,22 +7,24 @@ const { getClient } = require('./whatpsapp');
 const sendMessage = async(number, message, id) => {
     try {
 
+        number = number.trim().replace(/\s/g, '');
+
         const client = await getClient(id);
+        contador++;
 
-        number = number.trim();
+        console.log(`============================================================`);
+        console.log(`Enviando mensaje al ${number}, mensaje #${contador}`);
 
-        const chatId = `${number}@c.us`;
-        await client.sendMessage(chatId, message);
+        const number_details = await client.getNumberId(number);
 
-        // Aquí va la lógica para enviar el mensaje
-        console.log(`Enviando mensaje a ${number} exitosamente`);
+        if (number_details) {
+            await client.sendMessage(number, message);
+
+        }
 
         // Pausa entre mensajes para evitar el spam
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        // const number_details = await client.getNumberId(chatId);
-
-        // if (number_details) {
-        // }
+        const delay = Math.random() * (4500 - 3000) + 3000;
+        await new Promise(resolve => setTimeout(resolve, delay));
 
 
     } catch (error) {
@@ -33,8 +35,8 @@ const sendMessage = async(number, message, id) => {
 
 // Servicio para manejar el envío de mensajes en lotes
 const sendMessagesInBatches = async(contactList, id) => {
-    const batchSize = 10; // Ajusta el tamaño de los lotes según la capacidad de tu servidor
-    const delayBetweenBatches = 3000; // Ajusta el retraso entre lotes (en milisegundos)
+    const batchSize = 20; // Ajusta el tamaño de los lotes según la capacidad de tu servidor
+    const delayBetweenBatches = Math.random() * (4500 - 3000) + 3000;; // Ajusta el retraso entre lotes (en milisegundos)
 
     const createBatches = (arr, size) => {
         const batches = [];
@@ -61,4 +63,4 @@ const sendMessagesInBatches = async(contactList, id) => {
 // Función para retrasar la ejecución
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-module.exports = { sendMessagesInBatches, sendMessage }
+module.exports = { sendMessagesInBatches }
