@@ -191,52 +191,53 @@ const sendMasives = async(req, res = response) => {
     const { id } = req.params;
     const contacts = req.body.contacts;
 
-    try {
-        // Llama al servicio que gestiona el envío por lotes
-        await sendMessagesInBatches(contacts, id);
-        res.status.json({ ok: true, msg: 'Mensajes enviados exitosamente' });
-    } catch (error) {
-        console.error(`Error al enviar el mensaje a ${number}`, error);
-        throw error;
-    }
-
     // try {
-
-
-
-    //     // const client = await getClient(id);
-    //     // let contador = 0;
-
-    //     // for (let i = 0; i < contacts.length; i++) {
-    //     //     let { number, message } = contacts[i];
-
-    //     //     number = number.trim();
-
-    //     //     const chatId = `${number}@c.us`;
-    //     //     const number_details = await client.getNumberId(chatId);
-
-    //     //     if (number_details) {
-    //     //         contador++;
-    //     //         await client.sendMessage(chatId, message);
-    //     //     }
-
-    //     //     // Pausa entre mensajes para evitar el spam
-    //     //     await new Promise(resolve => setTimeout(resolve, 3000));
-
-    //     // }
-
-    //     res.json({
-    //         ok: true,
-    //         msg: `Se enviaron exitosamente, ${contador + 1} mensajes`
-    //     })
-
+    //     // Llama al servicio que gestiona el envío por lotes
+    //     await sendMessagesInBatches(contacts, id);
+    //     res.status.json({ ok: true, msg: 'Mensajes enviados exitosamente' });
     // } catch (error) {
-    //     console.log(error);
-    //     return res.status(500).json({
-    //         ok: false,
-    //         msg: 'Error inesperado, porfavor intente nuevamente'
-    //     });
+    //     console.error(`Error al enviar el mensaje a`, error);
+    //     throw error;
     // }
+
+    try {
+
+
+
+        const client = await getClient(id);
+        let contador = 0;
+
+        for (let i = 0; i < contacts.length; i++) {
+            let { number, message } = contacts[i];
+
+            number = number.trim();
+
+            const chatId = `${number}@c.us`;
+            await client.sendMessage(chatId, message);
+
+            // const number_details = await client.getNumberId(chatId);
+
+            // if (number_details) {
+            //     contador++;
+            // }
+
+            // Pausa entre mensajes para evitar el spam
+            await new Promise(resolve => setTimeout(resolve, 3000));
+
+        }
+
+        res.json({
+            ok: true,
+            msg: `Se enviaron exitosamente, ${contador + 1} mensajes`
+        })
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error inesperado, porfavor intente nuevamente'
+        });
+    }
 
 }
 
