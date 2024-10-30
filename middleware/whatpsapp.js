@@ -19,7 +19,7 @@ const initializeClient = (id) => {
 
     client.on('qr', (qr) => {
         console.log(`Escanea este QR para el cliente ${id}`);
-        // qrcode.generate(qr, { small: true });
+        qrcode.generate(qr, { small: true });
     });
 
     client.on('ready', () => {

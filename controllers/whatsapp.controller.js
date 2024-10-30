@@ -9,6 +9,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const QRCode = require('qrcode');
 const { getClient } = require('../middleware/whatpsapp');
+const { sendMessagesInBatches } = require('../middleware/masive');
 // const { whatsapp } = require('../lib/whatsapp');
 
 /** ======================================================================
@@ -187,44 +188,54 @@ const sendImage = async(req, res = response) => {
 =========================================================================*/
 const sendMasives = async(req, res = response) => {
 
+    const { id } = req.params;
+    const contacts = req.body.contacts;
+
     try {
-
-        const { id } = req.params;
-        const contacts = req.body.contacts;
-
-        const client = await getClient(id);
-        let contador = 0;
-
-        for (let i = 0; i < contacts.length; i++) {
-            let { number, message } = contacts[i];
-
-            number = number.trim();
-
-            const chatId = `${number}@c.us`;
-            const number_details = await client.getNumberId(chatId);
-
-            if (number_details) {
-                contador++;
-                await client.sendMessage(chatId, message);
-            }
-
-            // Pausa entre mensajes para evitar el spam
-            await new Promise(resolve => setTimeout(resolve, 3000));
-
-        }
-
-        res.json({
-            ok: true,
-            msg: `Se enviaron exitosamente, ${contador + 1} mensajes`
-        })
-
+        // Llama al servicio que gestiona el envío por lotes
+        await sendMessagesInBatches(contacts, id);
+        res.status(200).send({ message: 'Mensajes enviados exitosamente' });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            ok: false,
-            msg: 'Error inesperado, porfavor intente nuevamente'
-        });
+        res.status(500).send({ error: 'Error al enviar los mensajes', details: error.message });
     }
+
+    // try {
+
+
+
+    //     // const client = await getClient(id);
+    //     // let contador = 0;
+
+    //     // for (let i = 0; i < contacts.length; i++) {
+    //     //     let { number, message } = contacts[i];
+
+    //     //     number = number.trim();
+
+    //     //     const chatId = `${number}@c.us`;
+    //     //     const number_details = await client.getNumberId(chatId);
+
+    //     //     if (number_details) {
+    //     //         contador++;
+    //     //         await client.sendMessage(chatId, message);
+    //     //     }
+
+    //     //     // Pausa entre mensajes para evitar el spam
+    //     //     await new Promise(resolve => setTimeout(resolve, 3000));
+
+    //     // }
+
+    //     res.json({
+    //         ok: true,
+    //         msg: `Se enviaron exitosamente, ${contador + 1} mensajes`
+    //     })
+
+    // } catch (error) {
+    //     console.log(error);
+    //     return res.status(500).json({
+    //         ok: false,
+    //         msg: 'Error inesperado, porfavor intente nuevamente'
+    //     });
+    // }
 
 }
 
