@@ -198,6 +198,7 @@ const sendMasives = async(req, res = response) => {
 
             let { number, message } = contacts[i];
             number = number.trim();
+            number.replace(/ /g, "")
 
             console.log(`============================================================`);
             console.log(`Enviando mensaje al ${number}`);
