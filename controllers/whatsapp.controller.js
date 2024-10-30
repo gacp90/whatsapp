@@ -197,9 +197,8 @@ const sendMasives = async(req, res = response) => {
         for (let i = 0; i < contacts.length; i++) {
 
             let { number, message } = contacts[i];
-            number = new String(number);
             number = number.trim();
-            number.replace(/ /g, "");
+            number.replace(/ /g, "")
 
             const client = await getClient(id);
 
