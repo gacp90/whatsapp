@@ -11,14 +11,11 @@ const sendMessage = async(number, message, id) => {
 
         const client = await getClient(id);
 
-        console.log(`============================================================`);
-        console.log(`Enviando mensaje al ${number}`);
-
         const number_details = await client.getNumberId(number);
 
         if (number_details) {
             await client.sendMessage(number, message);
-
+            console.log(`Mensaje enviado con exito a ${number}`);
         }
 
         // Pausa entre mensajes para evitar el spam
