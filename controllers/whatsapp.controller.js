@@ -194,9 +194,13 @@ const sendMasives = async(req, res = response) => {
     try {
         // Llama al servicio que gestiona el envío por lotes
         await sendMessagesInBatches(contacts, id);
-        res.status(200).send({ message: 'Mensajes enviados exitosamente' });
+        res.status.json({ ok: true, msg: 'Mensajes enviados exitosamente' });
     } catch (error) {
-        res.status(500).send({ error: 'Error al enviar los mensajes', details: error.message });
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error inesperado, porfavor intente nuevamente'
+        });
     }
 
     // try {
